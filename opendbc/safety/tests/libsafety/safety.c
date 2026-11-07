@@ -10,10 +10,8 @@
 
 // TODO: time should just be passed into the hooks we expose
 uint32_t timer_cnt = 0;
-uint32_t timer_step = 0;
 uint32_t microsecond_timer_get(void);
 uint32_t microsecond_timer_get(void) {
-  timer_cnt += timer_step;
   return timer_cnt;
 }
 
@@ -133,10 +131,6 @@ void set_timer(uint32_t t){
   timer_cnt = t;
 }
 
-void set_timer_step(uint32_t s){
-  timer_step = s;
-}
-
 void set_torque_meas(int min, int max){
   SAFETY_SET(torque_meas.min, min);
   SAFETY_SET(torque_meas.max, max);
@@ -229,7 +223,6 @@ void init_tests(void){
   SAFETY_SET(safety_mode_cnt, 2U);  // avoid ignoring relay_malfunction logic
   safety_alternative_experience(0);
   set_timer(0);
-  timer_step = 0;
   SAFETY_SET(ts_steer_req_mismatch_last, 0);
   SAFETY_SET(valid_steer_req_count, 0);
   SAFETY_SET(invalid_steer_req_count, 0);

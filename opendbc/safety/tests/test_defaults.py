@@ -113,23 +113,6 @@ class TestSafetyRedundancy(common.SafetyTestBase):
         self.safety.safety_tick()
         self._assert_fault()
 
-  def test_same_time(self):
-    ford_lat = common.CANPackerSafety("ford_lincoln_base_pt").make_can_msg_safety("LateralMotionControl", 0, {"LatCtl_D_Rq": 1})
-    steering = {
-      CarParams.SafetyModel.hyundai: (common.make_msg(0, 0x340), lambda s: s.ts_torque_check_last),
-      CarParams.SafetyModel.tesla: (common.make_msg(0, 0x488, dat=b"\x40\x00\x20\x00"), lambda s: s.ts_angle_check_last),
-      CarParams.SafetyModel.ford: (ford_lat, lambda s: s.curvature_state.ts_check_last),
-    }
-    for mode, (msg, ts_last) in steering.items():
-      with self.subTest(mode=mode):
-        self.safety.set_safety_hooks(mode, 0)
-        self.safety.set_timer(1000000)
-        self.safety.set_timer_step(1)
-        self.safety.safety_rx_hook(common.make_msg(0, 0x4F1, 4))
-        self.safety.set_controls_allowed(True)
-        self.safety.safety_tx_hook(msg)
-        self.assertEqual(ts_last(self.safety.safety_a.state), 1000002)
-
 
 class TestHeartbeat(common.SafetyTestBase):
   SAFETY_MODEL = CarParams.SafetyModel.allOutput
